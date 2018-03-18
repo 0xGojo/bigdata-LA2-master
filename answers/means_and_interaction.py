@@ -16,7 +16,7 @@ if __name__ == "__main__":
         .builder\
         .appName("thach")\
         .getOrCreate()
-    lines = spark.read.text("./data/sample_movielens_ratings.txt").rdd
+    lines = spark.read.text("./sample_movielens_ratings.txt").rdd
     parts = lines.map(lambda row: row.value.split("::"))
     ratingsRDD = parts.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
                                          rating=float(p[2]), timestamp=long(p[3])))
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     
     user_item_interaction = udf(get_user_item_interaction)
     number_result = sys.argv[2]
-    result = table_all_Columns.select('userId', 'movieId', 'rating', 'user_mean', 'item_mean', user_item_interaction('rating', 'user_mean', 'item_mean', 'global_mean').alias("user-item-interaction")).take(17)
-
-    for elem in result:
-        print(elem)
+    result = table_all_Columns.select('userId', 'movieId', 'rating', 'user_mean', 'item_mean', user_item_interaction('rating', 'user_mean', 'item_mean', 'global_mean').alias("user-item-interaction")).orderBy('userId', 'movieId')
+    result.createOrReplaceTempView("meanAndInteractions")
+    sqlDF = spark.sql("SELECT * FROM meanAndInteractions")
+    sqlDF.show(int(number_result))

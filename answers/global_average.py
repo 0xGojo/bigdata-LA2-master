@@ -13,7 +13,7 @@ if __name__ == "__main__":
         .builder\
         .appName("thach")\
         .getOrCreate()
-    lines = spark.read.text("./data/sample_movielens_ratings.txt").rdd
+    lines = spark.read.text("./sample_movielens_ratings.txt").rdd
     parts = lines.map(lambda row: row.value.split("::"))
     ratingsRDD = parts.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
                                          rating=float(p[2]), timestamp=long(p[3])))
